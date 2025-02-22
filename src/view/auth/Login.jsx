@@ -8,6 +8,7 @@ import loginSchema from '../../validation.schema/login'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { ToastContainer, toast } from 'react-toastify';
+import { PropagateLoader } from 'react-spinners'
 function Login() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: yupResolver(loginSchema)
@@ -16,13 +17,13 @@ function Login() {
     const { login } = useContext(AuthContext)
     const loginHandler = async (data) => {
         const response = await loginUser.mutateAsync(data)
-        console.log("=====response====", response)
         if (response.status == 200) {
             login(response.data.token)
-        }else{
+        } else {
             toast.error("Login failed")
         }
     }
+    console.log("=======pending===", loginUser.isPending)
     return (
         <>
             <ToastContainer
@@ -52,7 +53,18 @@ function Login() {
                                             {errors.password?.message}
                                         </Form.Control.Feedback>
                                     </Form.Group>
-                                    <Button className='w-100' size='lg' type='submit'>Login</Button>
+                                    <Button className="w-100 flex justify-center items-center"
+                                        size="lg"
+                                        type="submit"
+                                    >
+                                        {
+                                            loginUser.isPending ?
+                                                <PropagateLoader size={10} color="#fff"/>
+                                                :
+                                                'Login'
+                                        }
+
+                                    </Button>
                                     <p className='mt-3 text-center'>Don't you have an account?  <span><Link to='/register'>creat account</Link></span></p>
 
                                 </Form>

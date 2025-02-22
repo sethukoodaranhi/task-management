@@ -9,6 +9,7 @@ import registerSchema from '../../validation.schema/register';
 import ApiQueries from '../../queries/apiQueries';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'
+import { PropagateLoader } from 'react-spinners'
 
 function Register() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -81,7 +82,15 @@ function Register() {
                                             {errors.confirmPassword?.message}
                                         </Form.Control.Feedback>
                                     </Form.Group>
-                                    <Button className='w-100' size='lg' type='submit' disabled={registerUser.isPending}>{registerUser.isPending ? 'submitting...' : 'Register'}</Button>
+                                    <Button
+                                        className="w-100 flex justify-center items-center"
+                                        size="lg"
+                                        type="submit"
+                                        disabled={registerUser.isPending}
+                                    >
+                                        {registerUser.isPending ? <PropagateLoader size={10} color="#fff" /> : 'Register'}
+                                    </Button>
+
                                     <p className='mt-3 text-center'>Already have an account? <span><Link to='/login'>Login</Link></span></p>
 
                                 </Form>

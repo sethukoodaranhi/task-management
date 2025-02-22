@@ -8,6 +8,7 @@ import { SetTasks } from '../../redux/reducers/slices/taskSlice'
 import Dropdown from 'react-bootstrap/Dropdown';
 import EditModal from './EditModal'
 import AddModal from './AddModal'
+import { DotLoader } from 'react-spinners'
 function TaskTable() {
     const { data: Tasks, isLoading, refetch: refetchTasks } = ApiQueries.GetTasks()
     const dispatch = useDispatch()
@@ -118,130 +119,136 @@ function TaskTable() {
             dispatch(SetTasks(updatedTask))
         }
     }
+    const override = {
+        display: "block",
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+    };
+
     return (
         <>
-            {
-                isLoading ?
-                    <p>loading......</p>
-                    :
-                    <div className="container table-container">
-                        <div className='filter-section shadow p-3 d-flex justify-content-between'>
-                            <Dropdown className="text-start" onSelect={filterHandler}>
-                                <Dropdown.Toggle id="dropdown-basic" className="filter-btn">
-                                    <Icon icon="mdi:filter-outline" width="24" height="24" />
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    {taskStatus.map((item) => (
-                                        <Dropdown.Item
-                                            key={item.value}
-                                            eventKey={item.value}
-                                            active={filterStatus === item.value}
-                                        >
-                                            {item.label}
-                                        </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                            </Dropdown>
 
-                            <Button onClick={openTaskAddmodal}>Add Task</Button>
+            <DotLoader cssOverride={override} loading={isLoading} />
+            <div className="container table-container">
+                <div className='filter-section shadow p-3 d-flex justify-content-between'>
+                    <Dropdown className="text-start" onSelect={filterHandler}>
+                        <Dropdown.Toggle id="dropdown-basic" className="filter-btn">
+                            <Icon icon="mdi:filter-outline" width="24" height="24" />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {taskStatus.map((item) => (
+                                <Dropdown.Item
+                                    key={item.value}
+                                    eventKey={item.value}
+                                    active={filterStatus === item.value}
+                                >
+                                    {item.label}
+                                </Dropdown.Item>
+                            ))}
+                        </Dropdown.Menu>
+                    </Dropdown>
+
+                    <Button onClick={openTaskAddmodal}>Add Task</Button>
+                </div>
+                <div className="table-wrapper">
+                    <Table striped bordered hover className="task-table w-100" responsive>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Task Status</th>
+                                <th><Icon icon="system-uicons:arrow-up" width="21" height="21"
+                                    onClick={() => sortHandler('asc')} />{" "}
+                                    Due Date{" "}<Icon icon="system-uicons:arrow-down" width="21" height="21"
+                                        onClick={() => sortHandler('desc')} />
+                                </th>
+                                <th>Action</th>
+                                <th>Change Task Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {TaskData &&
+                                TaskData.map((item) => {
+
+
+                                    return (
+                                        <tr key={item.id}>
+                                            <td className='text-capitalize'>{item.title}</td>
+                                            <td>{item.completed ? "Completed" : "Pending"}</td>
+                                            <td>{item.dueDate}</td>
+                                            <td>
+                                                <Icon icon="ri:edit-fill" width="24" height="24"
+                                                    onClick={() => editHandler(item)}
+                                                    style={{ cursor: 'pointer' }}
+                                                />
+                                                {" "}
+                                                <Icon icon="material-symbols-light:delete" width="24" height="24"
+                                                    onClick={() => deleteHandler(item.id)}
+                                                    style={{ cursor: 'pointer' }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <Form.Check
+                                                    type="switch"
+                                                    id="custom-switch"
+                                                    className='status-toggle'
+                                                    onChange={() => statusChangeHandler(item.id)}
+                                                    checked={item.completed}
+                                                    size={50}
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                        </tbody>
+
+                    </Table>
+                </div>
+
+                <div className="table-footer">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center">
+                            <p className="mb-0 me-2">Items per page:</p>
+                            <Form.Select
+                                aria-label="Items per page"
+                                size="sm"
+                                className="w-auto"
+                                value={itemsPerPage}
+                                onChange={itemsPerChangeHandler}
+                            >
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </Form.Select>
                         </div>
-                        <div className="table-wrapper">
-                            <Table striped bordered hover className="task-table w-100" responsive>
-                                <thead>
-                                    <tr>
-                                        <th>Task</th>
-                                        <th>Task Status</th>
-                                        <th><Icon icon="system-uicons:arrow-up" width="21" height="21"
-                                            onClick={() => sortHandler('asc')} />{" "}
-                                            Due Date{" "}<Icon icon="system-uicons:arrow-down" width="21" height="21"
-                                                onClick={() => sortHandler('desc')} />
-                                        </th>
-                                        <th>Action</th>
-                                        <th>Change Task Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {TaskData &&
-                                        TaskData.map((item) => {
-
-
-                                            return (
-                                                <tr key={item.id}>
-                                                    <td className='text-capitalize'>{item.title}</td>
-                                                    <td>{item.completed ? "Completed" : "Pending"}</td>
-                                                    <td>{item.dueDate}</td>
-                                                    <td>
-                                                        <Icon icon="ri:edit-fill" width="24" height="24"
-                                                            onClick={() => editHandler(item)}
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
-                                                        {" "}
-                                                        <Icon icon="material-symbols-light:delete" width="24" height="24"
-                                                            onClick={() => deleteHandler(item.id)}
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Form.Check
-                                                            type="switch"
-                                                            id="custom-switch"
-                                                            className='status-toggle'
-                                                            onChange={() => statusChangeHandler(item.id)}
-                                                            checked={item.completed}
-                                                            size={50}
-                                                        />
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                </tbody>
-
-                            </Table>
-                        </div>
-
-                        <div className="table-footer">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center">
-                                    <p className="mb-0 me-2">Items per page:</p>
-                                    <Form.Select
-                                        aria-label="Items per page"
-                                        size="sm"
-                                        className="w-auto"
-                                        value={itemsPerPage}
-                                        onChange={itemsPerChangeHandler}
-                                    >
-                                        <option value={10}>10</option>
-                                        <option value={20}>20</option>
-                                        <option value={50}>50</option>
-                                    </Form.Select>
-                                </div>
-                                <div className="ms-auto">
-                                    <ReactPaginate
-                                        breakLabel="..."
-                                        nextLabel={<Icon icon="fluent:arrow-next-12-filled" width="12" height="12" />}
-                                        onPageChange={handlePageClick}
-                                        pageRangeDisplayed={5}
-                                        pageCount={pageCount}
-                                        previousLabel={<Icon icon="fluent:arrow-previous-16-filled" width="16" height="16" />}
-                                        renderOnZeroPageCount={null}
-                                        containerClassName="pagination justify-content-center"
-                                        pageClassName="page-item"
-                                        pageLinkClassName="page-link"
-                                        previousClassName="page-item"
-                                        previousLinkClassName="page-link"
-                                        nextClassName="page-item"
-                                        nextLinkClassName="page-link"
-                                        breakClassName="page-item"
-                                        breakLinkClassName="page-link"
-                                        activeClassName="active"
-                                    />
-                                </div>
-                            </div>
+                        <div className="ms-auto">
+                            <ReactPaginate
+                                breakLabel="..."
+                                nextLabel={<Icon icon="fluent:arrow-next-12-filled" width="12" height="12" />}
+                                onPageChange={handlePageClick}
+                                pageRangeDisplayed={5}
+                                pageCount={pageCount}
+                                previousLabel={<Icon icon="fluent:arrow-previous-16-filled" width="16" height="16" />}
+                                renderOnZeroPageCount={null}
+                                containerClassName="pagination justify-content-center"
+                                pageClassName="page-item"
+                                pageLinkClassName="page-link"
+                                previousClassName="page-item"
+                                previousLinkClassName="page-link"
+                                nextClassName="page-item"
+                                nextLinkClassName="page-link"
+                                breakClassName="page-item"
+                                breakLinkClassName="page-link"
+                                activeClassName="active"
+                            />
                         </div>
                     </div>
+                </div>
+            </div>
 
 
-            }
+
             {
                 editData &&
                 <EditModal
